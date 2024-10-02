@@ -1,0 +1,37 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of `go build`
+/bin/
+/build/
+/dist/
+
+# Vendor directory if using dependency vendoring
+/vendor/
+
+# IDE or editor files
+.idea/
+*.vscode
+*.suo
+*.user
+*.rsuser
+*.swp
+
+# Go dependency files
+go.sum
+
+# Test binary and coverage output
+*.test
+*.cover
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
