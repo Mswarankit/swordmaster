@@ -1,9 +1,9 @@
 package window
 
 import (
-	"fmt"
 	"log"
 	"runtime"
+	"swordmaster/internal/event"
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -22,6 +22,7 @@ type Window struct {
 	canvas  *canvas.Canvas
 	backend *goglbackend.GoGLBackend
 	Current *glfw.Window
+	KB      *event.Keyboard
 }
 
 func NewWindow(w, h int, title string) *Window {
@@ -59,6 +60,7 @@ func NewWindow(w, h int, title string) *Window {
 	if err != nil {
 		log.Fatalf("Error loading canvas GL assets: %v", err)
 	}
+	outputWindow.KB = event.NewKeyboard()
 	outputWindow.backend = backend
 	outputWindow.Current = window
 	outputWindow.canvas = canvas.New(backend)
@@ -67,9 +69,9 @@ func NewWindow(w, h int, title string) *Window {
 
 func (w *Window) Run(fn func(cv *canvas.Canvas, w, h float64)) {
 	w.Current.SetCursorPosCallback(func(gw *glfw.Window, xpos, ypos float64) {
-		fmt.Printf("mx: %v, my: %v\n", xpos, ypos)
 		w.MouseX, w.MouseY = xpos*w.sx, ypos*w.sy
 	})
+	w.Current.SetKeyCallback(w.KB.Listen)
 	for !w.Current.ShouldClose() {
 		w.Current.MakeContextCurrent()
 
@@ -83,7 +85,6 @@ func (w *Window) Run(fn func(cv *canvas.Canvas, w, h float64)) {
 
 		// set canvas size
 		w.backend.SetBounds(0, 0, fbw, fbh)
-
 		// call the run function to do all the drawing
 		fn(w.canvas, float64(fbw), float64(fbh))
 
