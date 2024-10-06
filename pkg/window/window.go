@@ -37,10 +37,6 @@ func NewWindow(w, h int, title string) *Window {
 
 	glfw.WindowHint(glfw.StencilBits, 8)
 	glfw.WindowHint(glfw.DepthBits, 0)
-	glfw.WindowHint(glfw.ContextVersionMajor, 3)
-	glfw.WindowHint(glfw.ContextVersionMinor, 3)
-	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
-	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
 	// create window
 	window, err := glfw.CreateWindow(1280, 720, "GLFW Test", nil, nil)
@@ -67,6 +63,7 @@ func NewWindow(w, h int, title string) *Window {
 	outputWindow.backend = glBackend
 	outputWindow.Current = window
 	outputWindow.canvas = canvas.New(glBackend)
+	outputWindow.init()
 	return &outputWindow
 }
 
@@ -92,6 +89,6 @@ func (w Window) Close() {
 	glfw.Terminate()
 }
 
-func init() {
+func (w Window) init() {
 	runtime.LockOSThread()
 }
