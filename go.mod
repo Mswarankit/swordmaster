@@ -4,6 +4,8 @@ go 1.22.0
 
 require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/micahke/glfw_imgui_backend v0.0.0-20230605064329-93a9d2cbcdff // indirect
+	github.com/micahke/imgui-go v0.0.0-20230605063650-87f04203bba8 // indirect
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 )
 

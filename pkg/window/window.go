@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"swordmaster/internal/event"
 
-	"github.com/go-gl/gl/v2.1/gl"
+	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/tfriedel6/canvas"
 	"github.com/tfriedel6/canvas/backend/goglbackend"
@@ -37,6 +37,10 @@ func NewWindow(w, h int, title string) *Window {
 
 	glfw.WindowHint(glfw.StencilBits, 8)
 	glfw.WindowHint(glfw.DepthBits, 0)
+	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
 	// create window
 	window, err := glfw.CreateWindow(1280, 720, "GLFW Test", nil, nil)
@@ -51,19 +55,18 @@ func NewWindow(w, h int, title string) *Window {
 		log.Fatalf("Error initializing GL: %v", err)
 	}
 
-	// set vsync on, enable multisample (if available)
 	glfw.SwapInterval(1)
 	gl.Enable(gl.MULTISAMPLE)
 
 	// load GL backend
-	backend, err := goglbackend.New(0, 0, 0, 0, nil)
+	glBackend, err := goglbackend.New(0, 0, 0, 0, nil)
 	if err != nil {
 		log.Fatalf("Error loading canvas GL assets: %v", err)
 	}
 	outputWindow.KB = event.NewKeyboard()
-	outputWindow.backend = backend
+	outputWindow.backend = glBackend
 	outputWindow.Current = window
-	outputWindow.canvas = canvas.New(backend)
+	outputWindow.canvas = canvas.New(glBackend)
 	return &outputWindow
 }
 
@@ -73,22 +76,14 @@ func (w *Window) Run(fn func(cv *canvas.Canvas, w, h float64)) {
 	})
 	w.Current.SetKeyCallback(w.KB.Listen)
 	for !w.Current.ShouldClose() {
-		w.Current.MakeContextCurrent()
-
-		// find window size and scaling
+		glfw.PollEvents()
+		gl.Clear(gl.COLOR_BUFFER_BIT)
 		ww, wh := w.Current.GetSize()
 		fbw, fbh := w.Current.GetFramebufferSize()
 		w.sx = float64(fbw) / float64(ww)
 		w.sy = float64(fbh) / float64(wh)
-
-		glfw.PollEvents()
-
-		// set canvas size
 		w.backend.SetBounds(0, 0, fbw, fbh)
-		// call the run function to do all the drawing
 		fn(w.canvas, float64(fbw), float64(fbh))
-
-		// swap back and front buffer
 		w.Current.SwapBuffers()
 	}
 }

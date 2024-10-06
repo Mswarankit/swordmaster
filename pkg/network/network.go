@@ -1,11 +1,12 @@
-package net
+package network
 
 import (
 	"encoding/json"
 	"fmt"
 	"log"
 	"net"
-	"time"
+	"swordmaster/configs"
+	"sync"
 )
 
 const DEFAULT_PORT = 9211
@@ -13,7 +14,6 @@ const DEFAULT_PORT = 9211
 type Network struct {
 	conn      *net.UDPConn
 	myAddress net.Addr
-	myClients map[string]*net.UDPAddr
 }
 
 type Message struct {
@@ -23,9 +23,7 @@ type Message struct {
 }
 
 func NewNetwork() *Network {
-	return &Network{
-		myClients: make(map[string]*net.UDPAddr),
-	}
+	return &Network{}
 }
 
 func (n *Network) CreateServer(adrs ...string) {
@@ -48,6 +46,24 @@ func (n *Network) CreateServer(adrs ...string) {
 	go n.listen()
 }
 
+func (n Network) GetAddress() string {
+	addrs, err := net.InterfaceAddrs()
+	defAddr := fmt.Sprintf("http://localhost:%v", DEFAULT_PORT)
+	if err != nil {
+		return defAddr
+	}
+
+	for _, addr := range addrs {
+		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+			if ipNet.IP.To4() != nil {
+				return fmt.Sprintf("http://%v:%v", ipNet.IP.String(), DEFAULT_PORT)
+			}
+		}
+	}
+
+	return defAddr
+}
+
 func (n *Network) listen() {
 	buf := make([]byte, 4096)
 	for {
@@ -58,19 +74,22 @@ func (n *Network) listen() {
 		var message Message
 		json.Unmarshal([]byte(buf[:length]), &message)
 		if message.Kind == "JOIN" {
-			fmt.Println(n.myClients, addr.String())
-			n.myClients[addr.String()] = addr
+			configs.AddClient(message.Name, addr)
 			fmt.Printf("Position: %v\n", message.Data)
-			jd, _ := json.Marshal(Message{
+			n.SendMessageTo(&Message{
 				Kind: "JOIN_SUCCESS",
 				Name: "SERVER",
-			})
-			n.conn.WriteToUDP([]byte(jd), addr)
+			}, addr)
 		}
 		if message.Kind == "POS" {
 			fmt.Printf("Message %v\n", message)
 		}
 	}
+}
+
+func (n *Network) SendMessageTo(message *Message, clientAddr *net.UDPAddr) {
+	jd, _ := json.Marshal(message)
+	n.conn.WriteToUDP([]byte(jd), clientAddr)
 }
 
 func (n *Network) Join(serverAddress string) {
@@ -85,29 +104,18 @@ func (n *Network) Join(serverAddress string) {
 	n.conn = conn
 }
 
-func (n *Network) Send(message *Message) {
-	buf := make([]byte, 1024)
-	for {
-		jsonData, err := json.Marshal(Message{
-			Kind: "POS",
-			Name: "Client",
-			Data: []float64{1.0, 2.0, 3.0},
-		})
-		if err != nil {
-			fmt.Println("Error:", err)
-			return
-		}
-		_, err = n.conn.Write([]byte(jsonData))
-		if err != nil {
-			log.Fatal(err)
-		}
-		n, err := n.conn.Read(buf)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(buf[:n]))
-		time.Sleep(time.Second)
+func (n *Network) Broadcast(message *Message) {
+	var wg sync.WaitGroup
+
+	for _, client := range configs.ClientAddresses() {
+		wg.Add(1)
+		go func(client *net.UDPAddr) {
+			defer wg.Done()
+			n.SendMessageTo(message, client)
+		}(client)
 	}
+
+	wg.Wait() // Wait for all goroutines to finish
 }
 
 func (n *Network) Close() {

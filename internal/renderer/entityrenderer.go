@@ -28,3 +28,7 @@ func (r *EntityRenderer) Render(cv *canvas.Canvas, w, h float64) {
 		e.Draw(cv, w, h)
 	}
 }
+
+func (r *EntityRenderer) CleanUP() {
+
+}

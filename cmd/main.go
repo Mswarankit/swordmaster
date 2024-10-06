@@ -2,8 +2,8 @@ package main
 
 import (
 	"swordmaster/internal/entity"
+	"swordmaster/internal/gui"
 	"swordmaster/internal/renderer"
-	"swordmaster/pkg/net"
 	wn "swordmaster/pkg/window"
 )
 
@@ -17,9 +17,11 @@ func main() {
 			entity.NewPlayer(100, 100, 100),
 			entity.NewPlayer(100, 400, 100),
 		),
+		renderer.NewUIRenderer(
+			window.Current,
+			gui.NewNetworkUI(),
+		),
 	})
-	network := net.NewNetwork()
-	network.CreateServer()
-	defer network.Close()
+	defer mrenderer.CleanUP()
 	window.Run(mrenderer.Render)
 }
