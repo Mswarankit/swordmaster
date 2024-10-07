@@ -2,17 +2,18 @@ package store
 
 import (
 	"net"
+	"swordmaster/models"
 )
 
-type UDPAddressStore = map[string]*net.UDPAddr
+type UDPAddressStore = map[string]*models.Client
 
 var clients = make(UDPAddressStore)
 
 func AddClient(id string, clientAddr *net.UDPAddr) {
-	clients[id] = clientAddr
+	clients[id] = models.NewClient(id, clientAddr)
 }
 
-func GetClient(id string) *net.UDPAddr {
+func GetClient(id string) *models.Client {
 	return clients[id]
 }
 
@@ -32,10 +33,10 @@ func ClientIds() []string {
 	return ids
 }
 
-func ClientAddresses() []*net.UDPAddr {
-	addresses := make([]*net.UDPAddr, 0, len(clients))
-	for _, addr := range clients {
-		addresses = append(addresses, addr)
+func GetClients() []*models.Client {
+	output := make([]*models.Client, 0, len(clients))
+	for _, client := range clients {
+		output = append(output, client)
 	}
-	return addresses
+	return output
 }

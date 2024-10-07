@@ -128,17 +128,18 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 		log.Fatal(err)
 	}
 	store.AddClient(message.Name, addr)
+	go n.listen()
 	return output
 }
 
 func (n *UDPNetwork) Broadcast(message *models.Message) {
 	var wg sync.WaitGroup
 
-	for _, client := range store.ClientAddresses() {
+	for _, client := range store.GetClients() {
 		wg.Add(1)
-		go func(client *net.UDPAddr) {
+		go func(client *models.Client) {
 			defer wg.Done()
-			n.SendMessageTo(message, client)
+			n.SendMessageTo(message, client.Address)
 		}(client)
 	}
 
