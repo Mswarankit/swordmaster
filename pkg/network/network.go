@@ -147,7 +147,7 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
-	store.AddClient(message.Name, addr)
+	store.AddClient(strings.ToUpper(message.Name), addr)
 	go n.listen()
 	return output
 }
