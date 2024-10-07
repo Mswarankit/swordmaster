@@ -14,8 +14,7 @@ func main() {
 	mrenderer := renderer.NewMasterRenderer(window)
 	mrenderer.Init([]renderer.Renderer{
 		renderer.NewEntityRenderer(
-			entity.NewPlayer(100, 100, 100),
-			entity.NewPlayer(100, 400, 100),
+			entity.NewPlayer("Ram", 100, 100, 100),
 		),
 		renderer.NewUIRenderer(
 			window.Current,

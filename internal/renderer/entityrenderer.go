@@ -1,8 +1,10 @@
 package renderer
 
 import (
+	"fmt"
 	"swordmaster/internal/entity"
 	"swordmaster/pkg/window"
+	"swordmaster/store"
 
 	"github.com/tfriedel6/canvas"
 )
@@ -24,8 +26,14 @@ func (r *EntityRenderer) Setup(w *window.Window) {
 }
 
 func (r *EntityRenderer) Render(cv *canvas.Canvas, w, h float64) {
+	r.update()
 	for _, e := range r.entities {
 		e.Draw(cv, w, h)
+	}
+}
+func (r *EntityRenderer) update() {
+	for _, s := range store.ClientIds() {
+		fmt.Println(s)
 	}
 }
 

@@ -17,11 +17,23 @@ type UIRenderer struct {
 }
 
 func NewUIRenderer(window *glfw.Window, e ...gui.UI) *UIRenderer {
-	return &UIRenderer{
+	ui := UIRenderer{
 		uis:     e,
 		Context: imgui.CreateContext(nil),
-		Impl:    backend.ImguiGlfw3Init(window, imgui.CurrentIO()),
 	}
+	io := imgui.CurrentIO()
+	window.SetCharCallback(func(w *glfw.Window, char rune) {
+		io.AddInputCharacters(string(char))
+	})
+	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+		if action == glfw.Press {
+			io.KeyPress(int(key))
+		} else if action == glfw.Release {
+			io.KeyRelease(int(key))
+		}
+	})
+	ui.Impl = backend.ImguiGlfw3Init(window, io)
+	return &ui
 }
 
 func (r *UIRenderer) Setup(w *window.Window) {

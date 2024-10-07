@@ -1,7 +1,9 @@
 package entity
 
 import (
+	"swordmaster/models"
 	"swordmaster/pkg/window"
+	"swordmaster/store"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 	glm "github.com/go-gl/mathgl/mgl64"
@@ -11,10 +13,12 @@ import (
 type Player struct {
 	position glm.Vec2
 	size     float64
+	name     string
 }
 
-func NewPlayer(x, y float64, s float64) *Player {
+func NewPlayer(name string, x, y float64, s float64) *Player {
 	return &Player{
+		name: name,
 		position: glm.Vec2{
 			x, y,
 		},
@@ -39,5 +43,12 @@ func (p *Player) Setup(w *window.Window) {
 
 func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 	cv.SetFillStyle("#00F")
+	if store.GetLink() != nil {
+		store.GetLink().Broadcast(&models.Message{
+			Kind: "POS",
+			Name: p.name,
+			Data: []float64{p.position.X(), p.position.Y(), 0},
+		})
+	}
 	cv.FillRect(p.position.X(), p.position.Y(), p.size, p.size)
 }

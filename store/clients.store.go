@@ -1,6 +1,8 @@
-package configs
+package store
 
-import "net"
+import (
+	"net"
+)
 
 type UDPAddressStore = map[string]*net.UDPAddr
 

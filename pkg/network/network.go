@@ -5,28 +5,24 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"swordmaster/configs"
+	"swordmaster/models"
+	"swordmaster/store"
+	"swordmaster/types"
 	"sync"
 )
 
 const DEFAULT_PORT = 9211
 
-type Network struct {
+type UDPNetwork struct {
 	conn      *net.UDPConn
 	myAddress net.Addr
 }
 
-type Message struct {
-	Kind string    `json:"kind"`
-	Name string    `json:"name"`
-	Data []float64 `json:"data"`
+func NewNetwork() types.Network {
+	return &UDPNetwork{}
 }
 
-func NewNetwork() *Network {
-	return &Network{}
-}
-
-func (n *Network) CreateServer(adrs ...string) {
+func (n *UDPNetwork) CreateServer(adrs ...string) {
 	var adr string
 	if len(adrs) > 0 {
 		adr = adrs[0]
@@ -46,7 +42,7 @@ func (n *Network) CreateServer(adrs ...string) {
 	go n.listen()
 }
 
-func (n Network) GetAddress() string {
+func (n UDPNetwork) GetAddress() string {
 	addrs, err := net.InterfaceAddrs()
 	defAddr := fmt.Sprintf("http://localhost:%v", DEFAULT_PORT)
 	if err != nil {
@@ -64,50 +60,81 @@ func (n Network) GetAddress() string {
 	return defAddr
 }
 
-func (n *Network) listen() {
+func (n *UDPNetwork) listen() {
 	buf := make([]byte, 4096)
 	for {
 		length, addr, err := n.conn.ReadFromUDP(buf)
 		if err != nil {
 			log.Fatal(err)
 		}
-		var message Message
+		var message models.Message
 		json.Unmarshal([]byte(buf[:length]), &message)
 		if message.Kind == "JOIN" {
-			configs.AddClient(message.Name, addr)
+			store.AddClient(message.Name, addr)
 			fmt.Printf("Position: %v\n", message.Data)
-			n.SendMessageTo(&Message{
+			n.SendMessageTo(&models.Message{
 				Kind: "JOIN_SUCCESS",
 				Name: "SERVER",
 			}, addr)
 		}
 		if message.Kind == "POS" {
-			fmt.Printf("Message %v\n", message)
+			fmt.Printf("models.Message %v\n", message)
 		}
 	}
 }
 
-func (n *Network) SendMessageTo(message *Message, clientAddr *net.UDPAddr) {
+func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
 	jd, _ := json.Marshal(message)
 	n.conn.WriteToUDP([]byte(jd), clientAddr)
 }
 
-func (n *Network) Join(serverAddress string) {
+func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	addr, err := net.ResolveUDPAddr("udp", serverAddress)
+	output := true
 	if err != nil {
 		log.Fatal(err)
+		output = false
 	}
 	conn, err := net.DialUDP("udp", nil, addr)
 	if err != nil {
 		log.Fatal(err)
+		output = false
 	}
 	n.conn = conn
+	jsonData, err := json.Marshal(models.Message{
+		Kind: "JOIN",
+		Name: "Manoj",
+		Data: []float64{1.0, 2.0, 3.0},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = conn.Write([]byte(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	buf := make([]byte, 1024)
+	l, err := conn.Read(buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	jsonString := string(buf[:l])
+	fmt.Println(jsonString)
+	var message models.Message
+
+	// Unmarshal the JSON string into the Message struct
+	err = json.Unmarshal([]byte(jsonString), &message)
+	if err != nil {
+		log.Fatal(err)
+	}
+	store.AddClient(message.Name, addr)
+	return output
 }
 
-func (n *Network) Broadcast(message *Message) {
+func (n *UDPNetwork) Broadcast(message *models.Message) {
 	var wg sync.WaitGroup
 
-	for _, client := range configs.ClientAddresses() {
+	for _, client := range store.ClientAddresses() {
 		wg.Add(1)
 		go func(client *net.UDPAddr) {
 			defer wg.Done()
@@ -118,6 +145,6 @@ func (n *Network) Broadcast(message *Message) {
 	wg.Wait() // Wait for all goroutines to finish
 }
 
-func (n *Network) Close() {
+func (n *UDPNetwork) Close() {
 	n.conn.Close()
 }
