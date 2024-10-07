@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"strings"
 	"swordmaster/models"
 	"swordmaster/store"
@@ -91,7 +92,7 @@ func (n *UDPNetwork) listen() {
 			fmt.Printf("Position: %v\n", message.Data)
 			n.SendMessageTo(&models.Message{
 				Kind: "JOIN_SUCCESS",
-				Name: "SERVER",
+				Name: os.Getenv("MY_NAME"),
 			}, addr)
 		}
 		if message.Kind == "POS" {
@@ -122,7 +123,7 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	n.conn = conn
 	jsonData, err := json.Marshal(models.Message{
 		Kind: "JOIN",
-		Name: "Manoj",
+		Name: os.Getenv("MY_NAME"),
 		Data: []float64{1.0, 2.0},
 	})
 	if err != nil {
