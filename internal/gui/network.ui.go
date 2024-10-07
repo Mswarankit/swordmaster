@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fmt"
+	"os"
 	"swordmaster/pkg/network"
 	"swordmaster/store"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/tfriedel6/canvas"
 )
 
-var serverAddress string = "192.168.111.195:9211"
+var serverAddress string = os.Getenv("SERVER_ADDRESS")
 
 type NetworkUI struct {
 }
