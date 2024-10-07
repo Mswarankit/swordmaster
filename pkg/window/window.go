@@ -39,7 +39,7 @@ func NewWindow(w, h int, title string) *Window {
 	glfw.WindowHint(glfw.DepthBits, 0)
 
 	// create window
-	window, err := glfw.CreateWindow(1280, 720, "GLFW Test", nil, nil)
+	window, err := glfw.CreateWindow(1280, 720, title, nil, nil)
 	if err != nil {
 		log.Fatalf("Error creating window: %v", err)
 	}
