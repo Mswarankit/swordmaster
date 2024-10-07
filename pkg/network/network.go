@@ -29,7 +29,7 @@ func (n *UDPNetwork) CreateServer(adrs ...string) {
 	if len(adrs) > 0 {
 		adr = adrs[0]
 	} else {
-		adr = fmt.Sprintf("0.0.0.0: %d", DEFAULT_PORT)
+		adr = fmt.Sprintf("0.0.0.0:%d", DEFAULT_PORT)
 	}
 	addr, err := net.ResolveUDPAddr("udp", adr)
 	if err != nil {

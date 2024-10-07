@@ -10,7 +10,7 @@ import (
 	"github.com/tfriedel6/canvas"
 )
 
-var serverAddress string = os.Getenv("SERVER_ADDRESS")
+var serverAddress string = ""
 
 type NetworkUI struct {
 }
@@ -24,6 +24,7 @@ func (ui *NetworkUI) Setup() {
 }
 
 func (ui *NetworkUI) Draw(cv *canvas.Canvas, w, h float64) {
+	serverAddress = os.Getenv("SERVER_ADDRESS")
 	{
 		imgui.Begin("Network Info")
 		clicked := imgui.Button("Create Server")
