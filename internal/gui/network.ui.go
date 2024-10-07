@@ -9,7 +9,7 @@ import (
 	"github.com/tfriedel6/canvas"
 )
 
-var serverAddress string = ""
+var serverAddress string = "192.168.111.195:9211"
 
 type NetworkUI struct {
 }
@@ -44,7 +44,7 @@ func (ui *NetworkUI) Draw(cv *canvas.Canvas, w, h float64) {
 
 	{
 		imgui.Begin("Server")
-		imgui.InputText("Server Addresss", &serverAddress)
+		// imgui.InputText("Server Addresss", &serverAddress)
 		clicked := imgui.Button("Join Server")
 		joined := false
 		if clicked && len(serverAddress) > 4 {
