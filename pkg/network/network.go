@@ -79,6 +79,7 @@ func (n *UDPNetwork) listen() {
 		}
 		if message.Kind == "POS" {
 			fmt.Printf("models.Message %v\n", message)
+			store.GetClient(message.Name).SetPosition(message.Data)
 		}
 	}
 }
