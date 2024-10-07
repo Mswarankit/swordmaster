@@ -3,9 +3,10 @@ package models
 import "net"
 
 type Client struct {
-	Address  *net.UDPAddr
-	Name     string
-	Position []float64
+	Address   *net.UDPAddr
+	Name      string
+	PositionX float64
+	PositionY float64
 }
 
 func NewClient(name string, address *net.UDPAddr) *Client {
@@ -16,5 +17,6 @@ func NewClient(name string, address *net.UDPAddr) *Client {
 }
 
 func (c *Client) SetPosition(newPos []float64) {
-	c.Position = newPos
+	c.PositionX = newPos[0]
+	c.PositionY = newPos[0]
 }
