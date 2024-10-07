@@ -44,20 +44,36 @@ func (n *UDPNetwork) CreateServer(adrs ...string) {
 }
 
 func (n UDPNetwork) GetAddress() string {
-	addrs, err := net.InterfaceAddrs()
 	defAddr := fmt.Sprintf("http://localhost:%v", DEFAULT_PORT)
+
+	// Get a list of all network interfaces
+	interfaces, err := net.Interfaces()
 	if err != nil {
 		return defAddr
 	}
 
-	for _, addr := range addrs {
-		if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.IP.To4() != nil {
-				return fmt.Sprintf("http://%v:%v", ipNet.IP.String(), DEFAULT_PORT)
+	// Iterate over the interfaces to find the one associated with the Wi-Fi hotspot
+	for _, iface := range interfaces {
+		// Check if the interface is up and not loopback
+		if iface.Flags&net.FlagUp != 0 && !(iface.Flags&net.FlagLoopback != 0) {
+			addrs, err := iface.Addrs()
+			if err != nil {
+				continue
+			}
+
+			// Check each address associated with this interface
+			for _, addr := range addrs {
+				if ipNet, ok := addr.(*net.IPNet); ok && ipNet.IP.To4() != nil {
+					// Check if the interface name contains "Wi-Fi" or "Wireless"
+					if strings.Contains(strings.ToLower(iface.Name), "wifi") || strings.Contains(strings.ToLower(iface.Name), "wireless") {
+						return fmt.Sprintf("http://%v:%v", ipNet.IP.String(), DEFAULT_PORT)
+					}
+				}
 			}
 		}
 	}
 
+	// Return default address if no suitable address is found
 	return defAddr
 }
 
