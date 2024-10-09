@@ -14,9 +14,13 @@ func NewKeyboard() *Keyboard {
 	}
 }
 
-func (keyboard *Keyboard) Listen(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
-	for _, listener := range keyboard.listeners[key] {
-		listener()
+func (keyboard *Keyboard) ListenToKeys(w *glfw.Window) {
+	for key, listeners := range keyboard.listeners {
+		if glfw.Press == w.GetKey(key) {
+			for _, listener := range listeners {
+				listener()
+			}
+		}
 	}
 }
 

@@ -96,8 +96,6 @@ func (n *UDPNetwork) listen() {
 			}, addr)
 		}
 		if message.Kind == "POS" {
-			fmt.Printf("models.Message %v\n", message)
-			fmt.Printf("store.ClientIds %v\n", store.ClientIds())
 			store.GetClient(strings.ToUpper(message.Name)).SetPosition(message.Data[0], message.Data[1])
 		}
 	}
@@ -105,7 +103,12 @@ func (n *UDPNetwork) listen() {
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
 	jd, _ := json.Marshal(message)
-	n.conn.WriteToUDP([]byte(jd), clientAddr)
+	out, err := n.conn.Write([]byte(jd))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(out)
+	// n.conn.WriteToUDP([]byte(jd), clientAddr)
 }
 
 func (n *UDPNetwork) JoinServer(serverAddress string) bool {
@@ -154,7 +157,6 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 
 func (n *UDPNetwork) Broadcast(message *models.Message) {
 	var wg sync.WaitGroup
-
 	for _, client := range store.GetClients() {
 		wg.Add(1)
 		go func(client *models.Client) {

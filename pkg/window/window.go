@@ -71,9 +71,9 @@ func (w *Window) Run(fn func(cv *canvas.Canvas, w, h float64)) {
 	w.Current.SetCursorPosCallback(func(gw *glfw.Window, xpos, ypos float64) {
 		w.MouseX, w.MouseY = xpos*w.sx, ypos*w.sy
 	})
-	w.Current.SetKeyCallback(w.KB.Listen)
 	for !w.Current.ShouldClose() {
 		glfw.PollEvents()
+		w.KB.ListenToKeys(w.Current)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 		ww, wh := w.Current.GetSize()
 		fbw, fbh := w.Current.GetFramebufferSize()
