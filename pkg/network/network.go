@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"swordmaster/models"
+	"swordmaster/pkg/io"
 	"swordmaster/store"
 	"swordmaster/types"
 	"sync"
@@ -86,7 +87,7 @@ func (n *UDPNetwork) listen() {
 			log.Fatal(err)
 		}
 		var message models.Message
-		json.Unmarshal([]byte(buf[:length]), &message)
+		io.FromBytes(buf[:length], &message)
 		if message.Kind == "JOIN" {
 			store.AddClient(strings.ToUpper(message.Name), addr)
 			fmt.Printf("Position: %v\n", message.Data)
@@ -96,14 +97,13 @@ func (n *UDPNetwork) listen() {
 			}, addr)
 		}
 		if message.Kind == "POS" {
-			store.GetClient(strings.ToUpper(message.Name)).SetPosition(message.Data[0], message.Data[1])
+			store.GetClient(strings.ToUpper(message.Name)).SetPosition(message.Data.Position[0], message.Data.Position[1])
 		}
 	}
 }
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
-	jd, _ := json.Marshal(message)
-	out, err := n.conn.Write([]byte(jd))
+	out, err := n.conn.Write(io.ToBytes(message))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,7 +127,9 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	jsonData, err := json.Marshal(models.Message{
 		Kind: "JOIN",
 		Name: os.Getenv("MY_NAME"),
-		Data: []float64{1.0, 2.0},
+		Data: models.PlayerState{
+			Position: []float64{1.0, 2.0},
+		},
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -141,15 +143,9 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
-	jsonString := string(buf[:l])
-	fmt.Println(jsonString)
 	var message models.Message
+	io.FromBytes(buf[:l], &message)
 
-	// Unmarshal the JSON string into the Message struct
-	err = json.Unmarshal([]byte(jsonString), &message)
-	if err != nil {
-		log.Fatal(err)
-	}
 	store.AddClient(strings.ToUpper(message.Name), addr)
 	go n.listen()
 	return output
