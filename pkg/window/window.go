@@ -2,6 +2,7 @@ package window
 
 import (
 	"log"
+	"os"
 	"runtime"
 	"swordmaster/internal/event"
 
@@ -64,6 +65,8 @@ func NewWindow(w, h int, title string) *Window {
 	outputWindow.Current = window
 	outputWindow.canvas = canvas.New(glBackend)
 	outputWindow.init()
+	f, _ := outputWindow.canvas.LoadFont(os.Getenv("FONT"))
+	outputWindow.canvas.SetFont(f, 16.0)
 	return &outputWindow
 }
 

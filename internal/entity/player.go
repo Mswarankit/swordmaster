@@ -58,6 +58,7 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		})
 	}
 	cv.FillRect(p.position.X(), p.position.Y(), p.size, p.size)
+	cv.FillText(p.name, p.position.X(), p.position.Y()+p.size+16)
 	for _, client := range store.GetClients() {
 		cv.FillRect(client.PositionX, client.PositionY, p.size, p.size)
 	}
