@@ -54,7 +54,9 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		store.GetLink().Broadcast(&models.Message{
 			Kind: "POS",
 			Name: p.name,
-			Data: []float64{p.position.X(), p.position.Y()},
+			Data: models.PlayerState{
+				Position: []float64{p.position.X(), p.position.Y()},
+			},
 		})
 	}
 	cv.FillRect(p.position.X(), p.position.Y(), p.size, p.size)
