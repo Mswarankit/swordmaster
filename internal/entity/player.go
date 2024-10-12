@@ -75,6 +75,7 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		io.FromBytes(client.Player, &coPlayer)
 		cv.SetFillStyle(coPlayer.Color)
 		cv.FillRect(coPlayer.Position.X(), coPlayer.Position.Y(), coPlayer.Size, coPlayer.Size)
+		cv.SetFillStyle("#FFF")
 		cv.FillText(coPlayer.Name, coPlayer.Position.X(), coPlayer.Position.Y()+coPlayer.Size+18)
 	}
 }
