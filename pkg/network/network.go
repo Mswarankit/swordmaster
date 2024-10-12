@@ -104,8 +104,8 @@ func (n *UDPNetwork) listen() {
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
 	msgBytes := io.ToBytes(message)
-	// out, err := n.conn.Write(msgBytes)
-	out, err := n.conn.WriteToUDP(msgBytes, clientAddr)
+	out, err := n.conn.Write(msgBytes)
+	// out, err := n.conn.WriteToUDP(msgBytes, clientAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
