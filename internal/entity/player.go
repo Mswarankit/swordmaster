@@ -22,7 +22,9 @@ type Player struct {
 }
 
 func NewPlayer(name string, x, y float64, s float64) *Player {
-	newColor := utils.RGBtoHEX(rand.IntN(256), rand.IntN(256), rand.IntN(256), rand.IntN(256))
+	var mxc = 256
+	var mnc = 50
+	newColor := utils.RGBtoHEX(mnc+rand.IntN(mxc-mnc), mnc+rand.IntN(mxc-mnc), mnc+rand.IntN(mxc-mnc), mnc+rand.IntN(mxc-mnc))
 	return &Player{
 		Name:   name,
 		Size:   s,
@@ -70,6 +72,7 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 	cv.FillRect(p.Position.X(), p.Position.Y(), p.Size, p.Size)
 	cv.SetFillStyle("#FFF")
 	cv.FillText(p.Name, p.Position.X(), p.Position.Y()+p.Size+18)
+
 	var coPlayer Player
 	for _, client := range store.GetClients() {
 		io.FromBytes(client.Player, &coPlayer)
