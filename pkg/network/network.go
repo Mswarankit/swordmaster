@@ -103,12 +103,13 @@ func (n *UDPNetwork) listen() {
 }
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
-	out, err := n.conn.Write(io.ToBytes(message))
+	msgBytes := io.ToBytes(message)
+	// out, err := n.conn.Write(msgBytes)
+	out, err := n.conn.WriteToUDP(msgBytes, clientAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(out)
-	// n.conn.WriteToUDP([]byte(jd), clientAddr)
 }
 
 func (n *UDPNetwork) JoinServer(serverAddress string) bool {
@@ -124,10 +125,9 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 		output = false
 	}
 	n.conn = conn
-	jsonData, err := json.Marshal(models.Message{
+	jsonData, err := json.Marshal(&models.Message{
 		Kind: "JOIN",
 		Name: os.Getenv("MY_NAME"),
-		Data: nil,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -155,11 +155,14 @@ func (n *UDPNetwork) Broadcast(kind string, name string, data []byte) {
 		wg.Add(1)
 		go func(client *models.Client) {
 			defer wg.Done()
-			n.SendMessageTo(&models.Message{
+			msg := models.Message{
 				Kind: kind,
 				Name: name,
-				Data: data,
-			}, client.Address)
+			}
+			if len(data) > 0 {
+				msg.Data = data
+			}
+			n.SendMessageTo(&msg, client.Address)
 		}(client)
 	}
 
