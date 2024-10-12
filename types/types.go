@@ -11,5 +11,6 @@ type Network interface {
 	SendMessageTo(message *models.Message, clientAddr *net.UDPAddr)
 	GetAddress() string
 	Broadcast(kind string, name string, message []byte)
+	IsServer() bool
 	Close()
 }

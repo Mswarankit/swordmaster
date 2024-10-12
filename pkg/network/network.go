@@ -19,6 +19,7 @@ const DEFAULT_PORT = 9211
 type UDPNetwork struct {
 	conn      *net.UDPConn
 	myAddress net.Addr
+	isServer  bool
 }
 
 func NewNetwork() types.Network {
@@ -42,6 +43,7 @@ func (n *UDPNetwork) CreateServer(adrs ...string) {
 		log.Fatal(err)
 	}
 	n.conn = ln
+	n.isServer = true
 	go n.listen()
 }
 
@@ -104,8 +106,13 @@ func (n *UDPNetwork) listen() {
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
 	msgBytes := io.ToBytes(message)
-	out, err := n.conn.Write(msgBytes)
-	// out, err := n.conn.WriteToUDP(msgBytes, clientAddr)
+	var out int
+	var err error
+	if n.IsServer() {
+		out, err = n.conn.WriteToUDP(msgBytes, clientAddr)
+	} else {
+		out, err = n.conn.Write(msgBytes)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,7 +150,7 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	}
 	var message models.Message
 	io.FromBytes(buf[:l], &message)
-
+	n.isServer = false
 	store.AddClient(strings.ToUpper(message.Name), message.Data, addr)
 	go n.listen()
 	return output
@@ -171,4 +178,8 @@ func (n *UDPNetwork) Broadcast(kind string, name string, data []byte) {
 
 func (n *UDPNetwork) Close() {
 	n.conn.Close()
+}
+
+func (n UDPNetwork) IsServer() bool {
+	return n.isServer
 }
