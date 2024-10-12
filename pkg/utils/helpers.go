@@ -20,5 +20,5 @@ func DecToHex(n int) string {
 		hex = nm[n%16] + hex
 		n = n / 16
 	}
-	return hex
+	return fmt.Sprintf("%02s", hex)
 }
