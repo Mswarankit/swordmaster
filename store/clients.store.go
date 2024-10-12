@@ -2,15 +2,15 @@ package store
 
 import (
 	"net"
-	"swordmaster/models"
+	"swordmaster/internal/models"
 )
 
 type UDPAddressStore = map[string]*models.Client
 
 var clients = make(UDPAddressStore)
 
-func AddClient(id string, clientAddr *net.UDPAddr) {
-	clients[id] = models.NewClient(id, clientAddr)
+func AddClient(id string, player []byte, clientAddr *net.UDPAddr) {
+	clients[id] = models.NewClient(id, clientAddr, player)
 }
 
 func GetClient(id string) *models.Client {

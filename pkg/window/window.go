@@ -66,7 +66,7 @@ func NewWindow(w, h int, title string) *Window {
 	outputWindow.canvas = canvas.New(glBackend)
 	outputWindow.init()
 	f, _ := outputWindow.canvas.LoadFont(os.Getenv("FONT"))
-	outputWindow.canvas.SetFont(f, 16.0)
+	outputWindow.canvas.SetFont(f, 18)
 	return &outputWindow
 }
 

@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 	"strings"
-	"swordmaster/models"
+	"swordmaster/internal/models"
 	"swordmaster/pkg/io"
 	"swordmaster/store"
 	"swordmaster/types"
@@ -89,7 +89,7 @@ func (n *UDPNetwork) listen() {
 		var message models.Message
 		io.FromBytes(buf[:length], &message)
 		if message.Kind == "JOIN" {
-			store.AddClient(strings.ToUpper(message.Name), addr)
+			store.AddClient(strings.ToUpper(message.Name), nil, addr)
 			fmt.Printf("Position: %v\n", message.Data)
 			n.SendMessageTo(&models.Message{
 				Kind: "JOIN_SUCCESS",
@@ -97,7 +97,7 @@ func (n *UDPNetwork) listen() {
 			}, addr)
 		}
 		if message.Kind == "POS" {
-			store.GetClient(strings.ToUpper(message.Name)).SetPosition(message.Data.Position[0], message.Data.Position[1])
+			store.GetClient(strings.ToUpper(message.Name)).SetPlayer(message.Data)
 		}
 	}
 }
@@ -127,9 +127,7 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	jsonData, err := json.Marshal(models.Message{
 		Kind: "JOIN",
 		Name: os.Getenv("MY_NAME"),
-		Data: models.PlayerState{
-			Position: []float64{1.0, 2.0},
-		},
+		Data: nil,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -146,18 +144,22 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	var message models.Message
 	io.FromBytes(buf[:l], &message)
 
-	store.AddClient(strings.ToUpper(message.Name), addr)
+	store.AddClient(strings.ToUpper(message.Name), message.Data, addr)
 	go n.listen()
 	return output
 }
 
-func (n *UDPNetwork) Broadcast(message *models.Message) {
+func (n *UDPNetwork) Broadcast(kind string, name string, data []byte) {
 	var wg sync.WaitGroup
 	for _, client := range store.GetClients() {
 		wg.Add(1)
 		go func(client *models.Client) {
 			defer wg.Done()
-			n.SendMessageTo(message, client.Address)
+			n.SendMessageTo(&models.Message{
+				Kind: kind,
+				Name: name,
+				Data: data,
+			}, client.Address)
 		}(client)
 	}
 

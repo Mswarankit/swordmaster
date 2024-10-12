@@ -2,7 +2,7 @@ package types
 
 import (
 	"net"
-	"swordmaster/models"
+	"swordmaster/internal/models"
 )
 
 type Network interface {
@@ -10,6 +10,6 @@ type Network interface {
 	JoinServer(addrs string) bool
 	SendMessageTo(message *models.Message, clientAddr *net.UDPAddr)
 	GetAddress() string
-	Broadcast(message *models.Message)
+	Broadcast(kind string, name string, message []byte)
 	Close()
 }
