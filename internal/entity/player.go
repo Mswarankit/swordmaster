@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"math"
 	"math/rand/v2"
 	"swordmaster/pkg/io"
 	"swordmaster/pkg/utils"
@@ -72,6 +73,14 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 	cv.FillRect(p.Position.X(), p.Position.Y(), p.Size, p.Size)
 	cv.SetFillStyle("#FFF")
 	cv.FillText(p.Name, p.Position.X(), p.Position.Y()+p.Size+18)
+	cx := p.Position.X() + p.Size/2
+	cy := p.Position.Y() + p.Size/2
+	for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
+		phase := glfw.GetTime()
+		x := cx + p.Size*math.Cos(i+phase)
+		y := cy + p.Size*math.Sin(i+phase)
+		cv.FillRect(x, y, 10, 10)
+	}
 
 	var coPlayer Player
 	for _, client := range store.GetClients() {
@@ -80,5 +89,13 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		cv.FillRect(coPlayer.Position.X(), coPlayer.Position.Y(), coPlayer.Size, coPlayer.Size)
 		cv.SetFillStyle("#FFF")
 		cv.FillText(coPlayer.Name, coPlayer.Position.X(), coPlayer.Position.Y()+coPlayer.Size+18)
+		cx := coPlayer.Position.X() + coPlayer.Size/2
+		cy := coPlayer.Position.Y() + coPlayer.Size/2
+		for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
+			phase := glfw.GetTime()
+			x := cx + coPlayer.Size*math.Cos(i+phase)
+			y := cy + coPlayer.Size*math.Sin(i+phase)
+			cv.FillRect(x, y, 10, 10)
+		}
 	}
 }
