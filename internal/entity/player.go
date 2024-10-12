@@ -3,6 +3,7 @@ package entity
 import (
 	"math"
 	"math/rand/v2"
+	"swordmaster/internal/event"
 	"swordmaster/pkg/io"
 	"swordmaster/pkg/utils"
 	"swordmaster/pkg/window"
@@ -20,6 +21,7 @@ type Player struct {
 	Color    string   `json:"color"`
 	Health   int      `json:"health"`
 	speed    float64
+	Dum      float64 `json:"dum"`
 }
 
 func NewPlayer(name string, x, y float64, s float64) *Player {
@@ -59,6 +61,9 @@ func (p *Player) Setup(w *window.Window) {
 	w.KB.AddListener(glfw.KeyD, func() {
 		p.Position = p.Position.Add(glm.Vec2{1, 0}.Mul(p.speed))
 	})
+	event.AddMouseListener(glfw.MouseButtonLeft, func() {
+
+	})
 }
 
 func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
@@ -81,6 +86,15 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		y := cy + p.Size*math.Sin(i+phase)
 		cv.FillRect(x, y, 10, 10)
 	}
+	cv.SetStrokeStyle("#FFF")
+	cv.Stroke()
+	dir := glm.Vec2{event.Mouse.X, event.Mouse.Y}.Sub(glm.Vec2{cx, cy})
+	dir.Normalize()
+
+	cv.BeginPath()
+	cv.MoveTo(cx, cy)
+	cv.LineTo(event.Mouse.X, event.Mouse.Y)
+	cv.ClosePath()
 
 	var coPlayer Player
 	for _, client := range store.GetClients() {

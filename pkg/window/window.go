@@ -71,9 +71,8 @@ func NewWindow(w, h int, title string) *Window {
 }
 
 func (w *Window) Run(fn func(cv *canvas.Canvas, w, h float64)) {
-	w.Current.SetCursorPosCallback(func(gw *glfw.Window, xpos, ypos float64) {
-		w.MouseX, w.MouseY = xpos*w.sx, ypos*w.sy
-	})
+	w.Current.SetCursorPosCallback(event.MousePositionListener)
+	w.Current.SetMouseButtonCallback(event.MouseButtonListener)
 	for !w.Current.ShouldClose() {
 		glfw.PollEvents()
 		w.KB.ListenToKeys(w.Current)
