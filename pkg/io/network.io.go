@@ -14,8 +14,10 @@ func ToBytes(data interface{}) []byte {
 }
 
 func FromBytes(data []byte, n interface{}) {
-	err := json.Unmarshal(data, n)
-	if err != nil {
-		log.Fatalf("Error marshalling Byte to JSON : %v", err)
+	if len(data) > 0 {
+		err := json.Unmarshal(data, n)
+		if err != nil {
+			log.Fatalf("Error marshalling Byte to JSON : %v", err)
+		}
 	}
 }
