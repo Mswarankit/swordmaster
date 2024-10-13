@@ -117,3 +117,7 @@ func (w Window) Close() {
 func (w Window) init() {
 	runtime.LockOSThread()
 }
+
+func (w Window) GetCanvas() *canvas.Canvas {
+	return w.canvas
+}

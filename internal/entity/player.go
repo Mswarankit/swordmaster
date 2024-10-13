@@ -7,6 +7,7 @@ import (
 	"swordmaster/internal/enums"
 	"swordmaster/internal/event"
 	"swordmaster/pkg/io"
+	"swordmaster/pkg/shapes"
 	"swordmaster/pkg/utils"
 	"swordmaster/pkg/window"
 	"swordmaster/store"
@@ -81,27 +82,29 @@ func (p *Player) Shout(kind enums.MessageType, data interface{}) {
 }
 
 func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
-	cv.SetFillStyle(p.Color)
 	p.Shout(enums.POS, p)
-	cv.FillRect(p.Position.X(), p.Position.Y(), p.Size, p.Size)
+
+	shapes.Circle(p.Position, p.Size, p.Color)
+
 	cv.SetFillStyle("#FFF")
-	cv.FillText(p.Name, p.Position.X(), p.Position.Y()+p.Size+18)
-	cx := p.Position.X() + p.Size/2
-	cy := p.Position.Y() + p.Size/2
+	fs := 20.0
+	cv.FillText(p.Name, p.Position.X()-(float64(len(p.Name))*fs)/4.0, p.Position.Y()+p.Size*2+fs)
+	cx := p.Position.X()
+	cy := p.Position.Y()
 	for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
 		phase := glfw.GetTime()
-		x := cx + p.Size*math.Cos(i+phase)
-		y := cy + p.Size*math.Sin(i+phase)
-		cv.FillRect(x, y, 10, 10)
+		x := cx + p.Size*2*math.Cos(i+phase)
+		y := cy + p.Size*2*math.Sin(i+phase)
+		shapes.Rect(glm.Vec2{x, y}, 10, 10, p.Color)
 	}
 	cv.SetStrokeStyle("#FFF")
 	cv.Stroke()
 	dir := glm.Vec2{event.Mouse.X, event.Mouse.Y}.Sub(glm.Vec2{cx, cy})
 	dir.Normalize()
-
+	dir.Mul(p.Size * 2)
 	cv.BeginPath()
 	cv.MoveTo(cx, cy)
-	cv.LineTo(event.Mouse.X, event.Mouse.Y)
+	cv.LineTo(dir.X(), dir.Y())
 	cv.ClosePath()
 
 	var coPlayer Player

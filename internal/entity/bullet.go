@@ -40,7 +40,6 @@ func (b *Bullet) Setup(w *window.Window) {
 func (b *Bullet) Draw(cv *canvas.Canvas, w, h float64) {
 	cv.SetFillStyle("#F0F")
 	cv.BeginPath()
-	fmt.Printf("position: %v, size: %v\n", b.Position, b.Size)
 	cv.Arc(b.Position.X(), b.Position.Y(), b.Size, 0, math.Pi*2, false)
 	cv.Fill()
 }
