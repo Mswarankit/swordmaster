@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"math"
 	"math/rand/v2"
 	"strings"
@@ -88,7 +89,8 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 
 	cv.SetFillStyle("#FFF")
 	fs := 20.0
-	cv.FillText(p.Name, p.Position.X()-(float64(len(p.Name))*fs)/4.0, p.Position.Y()+p.Size*2+fs)
+	info := fmt.Sprintf("%s: %03d", p.Name, p.Health)
+	cv.FillText(info, p.Position.X()-(float64(len(info))*fs)/4.0, p.Position.Y()+p.Size*2+fs)
 	cx := p.Position.X()
 	cy := p.Position.Y()
 	for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
@@ -129,6 +131,7 @@ func (p *Player) Update(w *window.Window) {
 	for origin, bullet := range store.ListBullets() {
 		if !strings.HasPrefix(origin, p.Name) && bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
 			p.Shout(enums.HIT, &bullet)
+			p.Health -= bullet.GetType()
 			store.RemoveBullet(bullet.GetOrigin())
 		}
 	}

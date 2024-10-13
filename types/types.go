@@ -33,6 +33,7 @@ type Bullet interface {
 	GetPosition() glm.Vec2
 	GetForce() glm.Vec2
 	GetSize() float64
+	GetType() int
 }
 
 type Renderer interface {

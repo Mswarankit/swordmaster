@@ -63,3 +63,7 @@ func (b Bullet) GetForce() glm.Vec2 {
 func (b Bullet) GetSize() float64 {
 	return b.Size
 }
+
+func (b Bullet) GetType() int {
+	return int(b.Type)
+}
