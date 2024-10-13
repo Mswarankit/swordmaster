@@ -122,9 +122,9 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 }
 
 func (p *Player) Update(w *window.Window) {
-	for _, bullet := range store.ListBullets() {
-		if bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
-			p.Shout(enums.HIT, &bullet)
-		}
-	}
+	// for _, bullet := range store.ListBullets() {
+	// 	if bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
+	// 		p.Shout(enums.HIT, &bullet)
+	// 	}
+	// }
 }

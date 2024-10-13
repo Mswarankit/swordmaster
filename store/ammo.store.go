@@ -1,25 +1,34 @@
 package store
 
-import "swordmaster/types"
+import (
+	"swordmaster/types"
+	"sync"
+)
 
-var ammoStore = make(map[string]types.Bullet)
+type AmmoStore map[string]types.Bullet
+
+var ammoStore = make(AmmoStore)
+var mu sync.RWMutex
 
 func AddBullet(bullet types.Bullet) {
+	mu.Lock()
 	ammoStore[bullet.GetOrigin()] = bullet
+	mu.Unlock()
 }
 
-func ListBullets() []types.Bullet {
-	output := make([]types.Bullet, 0, len(ammoStore))
-	for _, ammo := range ammoStore {
-		output = append(output, ammo)
-	}
-	return output
+func ListBullets() AmmoStore {
+	return ammoStore
 }
 
 func RemoveBullet(origin string) {
+	mu.Lock()
 	delete(ammoStore, origin)
+	mu.Unlock()
 }
 
 func BulletCount() int {
-	return len(ammoStore)
+	mu.RLock()
+	count := len(ammoStore)
+	mu.RUnlock()
+	return count
 }

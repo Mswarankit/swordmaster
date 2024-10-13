@@ -14,11 +14,11 @@ import (
 )
 
 type Bullet struct {
-	Origin   string
-	Type     enums.BulletType
-	Force    glm.Vec2
-	Position glm.Vec2
-	size     float64
+	Origin   string           `json:"origin"`
+	Type     enums.BulletType `json:"type"`
+	Force    glm.Vec2         `json:"force"`
+	Position glm.Vec2         `json:"position"`
+	Size     float64          `json:"size"`
 }
 
 func NewBullet(name string, bType enums.BulletType, position glm.Vec2, force glm.Vec2) *Bullet {
@@ -26,7 +26,7 @@ func NewBullet(name string, bType enums.BulletType, position glm.Vec2, force glm
 		Force:    force,
 		Position: position,
 		Type:     bType,
-		size:     10,
+		Size:     10,
 		Origin:   fmt.Sprintf("%s_%v", name, glfw.GetTime()),
 	}
 	store.AddBullet(&bullet)
@@ -40,7 +40,8 @@ func (b *Bullet) Setup(w *window.Window) {
 func (b *Bullet) Draw(cv *canvas.Canvas, w, h float64) {
 	cv.SetFillStyle("#F0F")
 	cv.BeginPath()
-	cv.Arc(b.Position.X(), b.Position.Y(), b.size, 0, math.Pi*2, false)
+	fmt.Printf("position: %v, size: %v\n", b.Position, b.Size)
+	cv.Arc(b.Position.X(), b.Position.Y(), b.Size, 0, math.Pi*2, false)
 	cv.Fill()
 }
 
@@ -61,5 +62,5 @@ func (b Bullet) GetForce() glm.Vec2 {
 }
 
 func (b Bullet) GetSize() float64 {
-	return b.size
+	return b.Size
 }
