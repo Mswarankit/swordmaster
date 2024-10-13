@@ -7,6 +7,8 @@ import (
 	"net"
 	"os"
 	"strings"
+	"swordmaster/internal/entity"
+	"swordmaster/internal/enums"
 	"swordmaster/internal/models"
 	"swordmaster/pkg/io"
 	"swordmaster/store"
@@ -90,18 +92,34 @@ func (n *UDPNetwork) listen() {
 		}
 		var message models.Message
 		io.FromBytes(buf[:length], &message)
-		if message.Kind == "JOIN" {
-			store.AddClient(strings.ToUpper(message.Name), nil, addr)
-			fmt.Printf("Position: %v\n", message.Data)
-			n.SendMessageTo(&models.Message{
-				Kind: "JOIN_SUCCESS",
-				Name: os.Getenv("MY_NAME"),
-			}, addr)
-		}
-		if message.Kind == "POS" {
-			store.GetClient(strings.ToUpper(message.Name)).SetPlayer(message.Data)
+		switch message.Kind {
+		case enums.JOIN:
+			n.HandleJoin(&message, addr)
+		case enums.POS:
+			n.HandlePosition(&message, addr)
+		case enums.HIT:
+			n.HandleHit(&message, addr)
 		}
 	}
+}
+
+func (n *UDPNetwork) HandleJoin(message *models.Message, addr *net.UDPAddr) {
+	store.AddClient(strings.ToUpper(message.Name), nil, addr)
+	fmt.Printf("Position: %v\n", message.Data)
+	n.SendMessageTo(&models.Message{
+		Kind: "JOIN_SUCCESS",
+		Name: os.Getenv("MY_NAME"),
+	}, addr)
+}
+
+func (n *UDPNetwork) HandlePosition(message *models.Message, addr *net.UDPAddr) {
+	store.GetClient(strings.ToUpper(message.Name)).SetPlayer(message.Data)
+}
+
+func (n *UDPNetwork) HandleHit(message *models.Message, addr *net.UDPAddr) {
+	bullet := entity.Bullet{}
+	io.FromBytes(message.Data, &bullet)
+	store.RemoveBullet(bullet.GetOrigin())
 }
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
@@ -156,7 +174,7 @@ func (n *UDPNetwork) JoinServer(serverAddress string) bool {
 	return output
 }
 
-func (n *UDPNetwork) Broadcast(kind string, name string, data []byte) {
+func (n *UDPNetwork) Broadcast(kind enums.MessageType, name string, data []byte) {
 	var wg sync.WaitGroup
 	for _, client := range store.GetClients() {
 		wg.Add(1)

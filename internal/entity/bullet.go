@@ -1,20 +1,63 @@
 package entity
 
 import (
-	"swordmaster/types"
+	"fmt"
+	"math"
 
+	"swordmaster/internal/enums"
+	"swordmaster/pkg/window"
+	"swordmaster/store"
+
+	"github.com/go-gl/glfw/v3.3/glfw"
 	glm "github.com/go-gl/mathgl/mgl64"
+	"github.com/tfriedel6/canvas"
 )
 
 type Bullet struct {
-	Type     types.BulletType
+	Origin   string
+	Type     enums.BulletType
 	Force    glm.Vec2
 	Position glm.Vec2
+	size     float64
 }
 
-func NewBullet(name string, damage float64, force glm.Vec2, position glm.Vec2) *Bullet {
-	return &Bullet{
+func NewBullet(name string, bType enums.BulletType, position glm.Vec2, force glm.Vec2) {
+	store.AddBullet(&Bullet{
 		Force:    force,
 		Position: position,
-	}
+		Type:     bType,
+		size:     10,
+		Origin:   fmt.Sprintf("%s_%v", name, glfw.GetTime()),
+	})
+}
+
+func (b *Bullet) Setup(w *window.Window) {
+
+}
+
+func (b *Bullet) Draw(cv *canvas.Canvas, w, h float64) {
+	cv.SetFillStyle("#F0F")
+	cv.BeginPath()
+	cv.Arc(b.Position.X(), b.Position.Y(), b.size, 0, math.Pi*2, false)
+	cv.Fill()
+}
+
+func (p *Bullet) Update(w *window.Window) {
+	p.Position = p.Position.Add(p.Force.Mul(w.Dtime))
+}
+
+func (b Bullet) GetOrigin() string {
+	return b.Origin
+}
+
+func (b Bullet) GetPosition() glm.Vec2 {
+	return b.Position
+}
+
+func (b Bullet) GetForce() glm.Vec2 {
+	return b.Force
+}
+
+func (b Bullet) GetSize() float64 {
+	return b.size
 }

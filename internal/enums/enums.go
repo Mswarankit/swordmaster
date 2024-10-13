@@ -1,4 +1,4 @@
-package types
+package enums
 
 type BulletType int
 
@@ -17,3 +17,12 @@ func (d BulletType) String() string {
 		SuperDuper: "SuperDuper",
 	}[d]
 }
+
+type MessageType string
+
+const (
+	JOIN         MessageType = "JOIN"
+	JOIN_SUCCESS MessageType = "JOIN_SUCCESS"
+	POS          MessageType = "POS"
+	HIT          MessageType = "HIT"
+)

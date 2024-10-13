@@ -14,29 +14,31 @@ type UIRenderer struct {
 	uis     []gui.UI
 	Impl    *backend.ImguiGlfw3
 	Context *imgui.Context
+	Window  *window.Window
 }
 
-func NewUIRenderer(window *glfw.Window, e ...gui.UI) *UIRenderer {
+func NewUIRenderer(window *window.Window, e ...gui.UI) *UIRenderer {
 	ui := UIRenderer{
 		uis:     e,
 		Context: imgui.CreateContext(nil),
+		Window:  window,
 	}
 	io := imgui.CurrentIO()
-	window.SetCharCallback(func(w *glfw.Window, char rune) {
+	ui.Window.Current.SetCharCallback(func(w *glfw.Window, char rune) {
 		io.AddInputCharacters(string(char))
 	})
-	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+	ui.Window.Current.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 		if action == glfw.Press {
 			io.KeyPress(int(key))
 		} else if action == glfw.Release {
 			io.KeyRelease(int(key))
 		}
 	})
-	ui.Impl = backend.ImguiGlfw3Init(window, io)
+	ui.Impl = backend.ImguiGlfw3Init(ui.Window.Current, io)
 	return &ui
 }
 
-func (r *UIRenderer) Setup(w *window.Window) {
+func (r *UIRenderer) Setup() {
 	for _, e := range r.uis {
 		e.Setup()
 	}

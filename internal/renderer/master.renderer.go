@@ -2,19 +2,14 @@ package renderer
 
 import (
 	"swordmaster/pkg/window"
+	"swordmaster/types"
 
 	"github.com/tfriedel6/canvas"
 )
 
-type Renderer interface {
-	Setup(*window.Window)
-	Render(*canvas.Canvas, float64, float64)
-	CleanUP()
-}
-
 type MasterRenderer struct {
 	w         *window.Window
-	renderers []Renderer
+	renderers []types.Renderer
 }
 
 func NewMasterRenderer(w *window.Window) *MasterRenderer {
@@ -23,10 +18,10 @@ func NewMasterRenderer(w *window.Window) *MasterRenderer {
 	}
 }
 
-func (mr *MasterRenderer) Init(renderers []Renderer) {
+func (mr *MasterRenderer) Init(renderers []types.Renderer) {
 	mr.renderers = renderers
 	for _, renderers := range mr.renderers {
-		renderers.Setup(mr.w)
+		renderers.Setup()
 	}
 }
 

@@ -3,6 +3,7 @@ package entity
 import (
 	"math"
 	"math/rand/v2"
+	"swordmaster/internal/enums"
 	"swordmaster/internal/event"
 	"swordmaster/pkg/io"
 	"swordmaster/pkg/utils"
@@ -20,7 +21,7 @@ type Player struct {
 	Name     string   `json:"name"`
 	Color    string   `json:"color"`
 	Health   int      `json:"health"`
-	speed    float64
+	Speed    float64
 	Dum      float64 `json:"dum"`
 }
 
@@ -31,7 +32,7 @@ func NewPlayer(name string, x, y float64, s float64) *Player {
 	return &Player{
 		Name:   name,
 		Size:   s,
-		speed:  5.0,
+		Speed:  5.0,
 		Health: 100,
 		Color:  newColor,
 		Position: glm.Vec2{
@@ -50,31 +51,37 @@ func (p *Player) SetColor(color string) {
 
 func (p *Player) Setup(w *window.Window) {
 	w.KB.AddListener(glfw.KeyW, func() {
-		p.Position = p.Position.Add(glm.Vec2{0, -1}.Mul(p.speed))
+		p.Position = p.Position.Add(glm.Vec2{0, -1}.Mul(p.Speed))
 	})
 	w.KB.AddListener(glfw.KeyS, func() {
-		p.Position = p.Position.Add(glm.Vec2{0, 1}.Mul(p.speed))
+		p.Position = p.Position.Add(glm.Vec2{0, 1}.Mul(p.Speed))
 	})
 	w.KB.AddListener(glfw.KeyA, func() {
-		p.Position = p.Position.Add(glm.Vec2{-1, 0}.Mul(p.speed))
+		p.Position = p.Position.Add(glm.Vec2{-1, 0}.Mul(p.Speed))
 	})
 	w.KB.AddListener(glfw.KeyD, func() {
-		p.Position = p.Position.Add(glm.Vec2{1, 0}.Mul(p.speed))
+		p.Position = p.Position.Add(glm.Vec2{1, 0}.Mul(p.Speed))
 	})
 	event.AddMouseListener(glfw.MouseButtonLeft, func() {
-
+		mv := glm.Vec2{event.Mouse.X, event.Mouse.Y}
+		fv := mv.Sub(p.Position).Normalize().Mul(float64(enums.Normal * 600))
+		NewBullet(p.Name, enums.Normal, p.Position, fv)
 	})
 }
 
-func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
-	cv.SetFillStyle(p.Color)
+func (p *Player) Shout(kind enums.MessageType, data interface{}) {
 	if store.GetLink() != nil {
 		store.GetLink().Broadcast(
-			"POS",
+			kind,
 			p.Name,
 			io.ToBytes(p),
 		)
 	}
+}
+
+func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
+	cv.SetFillStyle(p.Color)
+	p.Shout(enums.POS, p)
 	cv.FillRect(p.Position.X(), p.Position.Y(), p.Size, p.Size)
 	cv.SetFillStyle("#FFF")
 	cv.FillText(p.Name, p.Position.X(), p.Position.Y()+p.Size+18)
@@ -110,6 +117,14 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 			x := cx + coPlayer.Size*math.Cos(i+phase)
 			y := cy + coPlayer.Size*math.Sin(i+phase)
 			cv.FillRect(x, y, 10, 10)
+		}
+	}
+}
+
+func (p *Player) Update(w *window.Window) {
+	for _, bullet := range store.ListBullets() {
+		if bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
+			p.Shout(enums.HIT, &bullet)
 		}
 	}
 }

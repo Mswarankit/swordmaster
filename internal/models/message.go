@@ -1,7 +1,9 @@
 package models
 
+import "swordmaster/internal/enums"
+
 type Message struct {
-	Kind string `json:"kind"`
-	Name string `json:"name"`
-	Data []byte `json:"data"`
+	Kind enums.MessageType `json:"kind"`
+	Name string            `json:"name"`
+	Data []byte            `json:"data"`
 }
