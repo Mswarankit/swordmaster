@@ -124,7 +124,7 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 
 func (p *Player) Update(w *window.Window) {
 	for origin, bullet := range store.ListBullets() {
-		if strings.HasPrefix(origin, p.Name) && bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
+		if !strings.HasPrefix(origin, p.Name) && bullet.GetPosition().Sub(p.Position).Len() <= bullet.GetSize()+p.Size {
 			p.Shout(enums.HIT, &bullet)
 		}
 	}
