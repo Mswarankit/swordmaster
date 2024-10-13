@@ -36,4 +36,4 @@ go.sum
 .DS_Store
 Thumbs.db
 *.env
-imgui.ini
+*.ini
