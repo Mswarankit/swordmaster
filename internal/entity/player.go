@@ -94,8 +94,7 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 		io.FromBytes(client.Player, &coPlayer)
 		shapes.Circle(coPlayer.Position, coPlayer.Size, coPlayer.Color)
 		aura(coPlayer.Position.X(), coPlayer.Position.Y(), coPlayer.Size, coPlayer.Color)
-		cv.FillText(coPlayer.Name, coPlayer.Position.X(), coPlayer.Position.Y()+coPlayer.Size+18)
-
+		coPlayer.ShowInfo()
 	}
 }
 
@@ -109,7 +108,7 @@ func (p *Player) Update(w *window.Window) {
 	}
 }
 
-func (p *Player) ShowInfo() {
+func (p Player) ShowInfo() {
 	cv := store.GetCanvas()
 	cv.SetFillStyle("#FFF")
 	fs := 20.0
