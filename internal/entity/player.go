@@ -86,44 +86,16 @@ func (p *Player) Draw(cv *canvas.Canvas, w, h float64) {
 	p.Shout(enums.POS, p)
 
 	shapes.Circle(p.Position, p.Size, p.Color)
-
-	cv.SetFillStyle("#FFF")
-	fs := 20.0
-	info := fmt.Sprintf("%s: %03d", p.Name, p.Health)
-	cv.FillText(info, p.Position.X()-(float64(len(info))*fs)/4.0, p.Position.Y()+p.Size*2+fs)
-	cx := p.Position.X()
-	cy := p.Position.Y()
-	for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
-		phase := glfw.GetTime()
-		x := cx + p.Size*2*math.Cos(i+phase)
-		y := cy + p.Size*2*math.Sin(i+phase)
-		shapes.Rect(glm.Vec2{x, y}, 10, 10, p.Color)
-	}
-	cv.SetStrokeStyle("#FFF")
-	cv.Stroke()
-	dir := glm.Vec2{event.Mouse.X, event.Mouse.Y}.Sub(glm.Vec2{cx, cy})
-	dir.Normalize()
-	dir.Mul(p.Size * 2)
-	cv.BeginPath()
-	cv.MoveTo(cx, cy)
-	cv.LineTo(dir.X(), dir.Y())
-	cv.ClosePath()
+	aura(p.Position.X(), p.Position.Y(), p.Size, p.Color)
+	p.ShowInfo()
 
 	var coPlayer Player
 	for _, client := range store.GetClients() {
 		io.FromBytes(client.Player, &coPlayer)
-		cv.SetFillStyle(coPlayer.Color)
-		cv.FillRect(coPlayer.Position.X(), coPlayer.Position.Y(), coPlayer.Size, coPlayer.Size)
-		cv.SetFillStyle("#FFF")
+		shapes.Circle(coPlayer.Position, coPlayer.Size, coPlayer.Color)
+		aura(coPlayer.Position.X(), coPlayer.Position.Y(), coPlayer.Size, coPlayer.Color)
 		cv.FillText(coPlayer.Name, coPlayer.Position.X(), coPlayer.Position.Y()+coPlayer.Size+18)
-		cx := coPlayer.Position.X() + coPlayer.Size/2
-		cy := coPlayer.Position.Y() + coPlayer.Size/2
-		for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
-			phase := glfw.GetTime()
-			x := cx + coPlayer.Size*math.Cos(i+phase)
-			y := cy + coPlayer.Size*math.Sin(i+phase)
-			cv.FillRect(x, y, 10, 10)
-		}
+
 	}
 }
 
@@ -134,5 +106,22 @@ func (p *Player) Update(w *window.Window) {
 			p.Health -= bullet.GetType()
 			store.RemoveBullet(bullet.GetOrigin())
 		}
+	}
+}
+
+func (p *Player) ShowInfo() {
+	cv := store.GetCanvas()
+	cv.SetFillStyle("#FFF")
+	fs := 20.0
+	info := fmt.Sprintf("%s: %03d", p.Name, p.Health)
+	cv.FillText(info, p.Position.X()-(float64(len(info))*fs)/4.0, p.Position.Y()+p.Size*2+fs)
+}
+
+func aura(cx, cy, size float64, color string) {
+	for i := 0.0; i < 2*math.Pi; i += math.Pi / 8 {
+		phase := glfw.GetTime()
+		x := cx + size*2*math.Cos(i+phase)
+		y := cy + size*2*math.Sin(i+phase)
+		shapes.Rect(glm.Vec2{x, y}, 10, 10, color)
 	}
 }
