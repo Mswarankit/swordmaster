@@ -74,7 +74,7 @@ func (p *Player) Shout(kind enums.MessageType, data interface{}) {
 		store.GetLink().Broadcast(
 			kind,
 			p.Name,
-			io.ToBytes(p),
+			io.ToBytes(data),
 		)
 	}
 }

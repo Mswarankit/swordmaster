@@ -127,6 +127,7 @@ func (n *UDPNetwork) HandleHit(message *models.Message, addr *net.UDPAddr) {
 func (n *UDPNetwork) HandleBullet(message *models.Message, addr *net.UDPAddr) {
 	bullet := entity.Bullet{}
 	io.FromBytes(message.Data, &bullet)
+	fmt.Println(bullet)
 	store.AddBullet(&bullet)
 }
 
