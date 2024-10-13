@@ -1,11 +1,9 @@
 package renderer
 
 import (
-	"fmt"
 	"swordmaster/pkg/window"
 	"swordmaster/types"
 
-	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/tfriedel6/canvas"
 )
 
@@ -32,7 +30,6 @@ func (r *EntityRenderer) Render(cv *canvas.Canvas, w, h float64) {
 		e.Update(r.Window)
 		e.Draw(cv, w, h)
 	}
-	fmt.Printf("DTime: %v, Time: %v\n", r.Window.Dtime, glfw.GetTime())
 }
 
 func (r *EntityRenderer) CleanUP() {

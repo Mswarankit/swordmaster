@@ -132,17 +132,15 @@ func (n *UDPNetwork) HandleBullet(message *models.Message, addr *net.UDPAddr) {
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {
 	msgBytes := io.ToBytes(message)
-	var out int
 	var err error
 	if n.IsServer() {
-		out, err = n.conn.WriteToUDP(msgBytes, clientAddr)
+		_, err = n.conn.WriteToUDP(msgBytes, clientAddr)
 	} else {
-		out, err = n.conn.Write(msgBytes)
+		_, err = n.conn.Write(msgBytes)
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(out)
 }
 
 func (n *UDPNetwork) JoinServer(serverAddress string) bool {
