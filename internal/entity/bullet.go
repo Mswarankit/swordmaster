@@ -21,14 +21,16 @@ type Bullet struct {
 	size     float64
 }
 
-func NewBullet(name string, bType enums.BulletType, position glm.Vec2, force glm.Vec2) {
-	store.AddBullet(&Bullet{
+func NewBullet(name string, bType enums.BulletType, position glm.Vec2, force glm.Vec2) *Bullet {
+	bullet := Bullet{
 		Force:    force,
 		Position: position,
 		Type:     bType,
 		size:     10,
 		Origin:   fmt.Sprintf("%s_%v", name, glfw.GetTime()),
-	})
+	}
+	store.AddBullet(&bullet)
+	return &bullet
 }
 
 func (b *Bullet) Setup(w *window.Window) {

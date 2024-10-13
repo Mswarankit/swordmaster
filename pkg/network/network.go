@@ -99,6 +99,8 @@ func (n *UDPNetwork) listen() {
 			n.HandlePosition(&message, addr)
 		case enums.HIT:
 			n.HandleHit(&message, addr)
+		case enums.SHOOT:
+			n.HandleBullet(&message, addr)
 		}
 	}
 }
@@ -120,6 +122,12 @@ func (n *UDPNetwork) HandleHit(message *models.Message, addr *net.UDPAddr) {
 	bullet := entity.Bullet{}
 	io.FromBytes(message.Data, &bullet)
 	store.RemoveBullet(bullet.GetOrigin())
+}
+
+func (n *UDPNetwork) HandleBullet(message *models.Message, addr *net.UDPAddr) {
+	bullet := entity.Bullet{}
+	io.FromBytes(message.Data, &bullet)
+	store.AddBullet(&bullet)
 }
 
 func (n *UDPNetwork) SendMessageTo(message *models.Message, clientAddr *net.UDPAddr) {

@@ -65,7 +65,7 @@ func (p *Player) Setup(w *window.Window) {
 	event.AddMouseListener(glfw.MouseButtonLeft, func() {
 		mv := glm.Vec2{event.Mouse.X, event.Mouse.Y}
 		fv := mv.Sub(p.Position).Normalize().Mul(float64(enums.Normal * 600))
-		NewBullet(p.Name, enums.Normal, p.Position, fv)
+		p.Shout(enums.SHOOT, NewBullet(p.Name, enums.Normal, p.Position, fv))
 	})
 }
 

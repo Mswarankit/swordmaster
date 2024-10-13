@@ -25,4 +25,5 @@ const (
 	JOIN_SUCCESS MessageType = "JOIN_SUCCESS"
 	POS          MessageType = "POS"
 	HIT          MessageType = "HIT"
+	SHOOT        MessageType = "SHOOT"
 )
